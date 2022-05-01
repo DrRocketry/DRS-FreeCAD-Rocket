@@ -38,7 +38,9 @@ class RocketWorkbench ( Workbench ):
         
         self.appendToolbar(QT_TRANSLATE_NOOP('Rocket', 'Rocket'),
                         ['Rocket_NoseCone', 'Rocket_Transition', 'Rocket_BodyTube', 'Rocket_CenteringRing', 'Rocket_Bulkhead', 'Rocket_Fin', 'Rocket_LaunchGuides', 
-                        'Separator', 'Rocket_Calculators', 'Separator', 'Rocket_NewSketch', 'Sketcher_EditSketch'])
+                        'Separator', 'Rocket_FinGuide',
+                        'Separator', 'Rocket_Calculators',
+                        'Separator', 'Rocket_NewSketch', 'Sketcher_EditSketch'])
 
         self.appendMenu(QT_TRANSLATE_NOOP('Rocket', 'Rocket'), 
                         ['Rocket_NoseCone', 'Rocket_Transition', 'Rocket_BodyTube', 'Rocket_CenteringRing', 'Rocket_Bulkhead', 'Rocket_Fin'])
@@ -47,6 +49,9 @@ class RocketWorkbench ( Workbench ):
                         ['Rocket_LaunchLug', 'Rocket_RailButton', 'Rocket_RailGuide'])
         self.appendMenu(QT_TRANSLATE_NOOP('Rocket', 'Rocket'), 
                         ['Separator'])
+        self.appendMenu([QT_TRANSLATE_NOOP('Rocket', 'Rocket'), 
+                         QT_TRANSLATE_NOOP("Rocket", "Tools")],
+                        ['Rocket_FinGuide'])
         self.appendMenu([QT_TRANSLATE_NOOP("Rocket", "Rocket"),
                          QT_TRANSLATE_NOOP("Rocket", "Calculators")],
                         ['Rocket_CalcBlackPowder', 'Rocket_CalcParachute', 'Rocket_CalcThrustToWeight', 'Rocket_CalcVentHoles'])

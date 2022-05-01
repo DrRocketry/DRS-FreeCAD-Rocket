@@ -34,6 +34,7 @@ from Ui.CmdBodyTube import CmdBodyTube
 from Ui.CmdBulkhead import CmdBulkhead
 from Ui.CmdLaunchGuides import CmdLaunchLug, CmdRailButton, CmdRailGuide, CmdStandOff
 from Ui.CmdFin import CmdFin
+from Ui.CmdFinGuide import CmdFinGuide
 
 # Calculators
 from Ui.CmdCalcBlackPowder import CmdCalcBlackPowder
@@ -56,6 +57,8 @@ FreeCADGui.addCommand('Rocket_LaunchLug', CmdLaunchLug())
 FreeCADGui.addCommand('Rocket_RailButton', CmdRailButton())
 FreeCADGui.addCommand('Rocket_RailGuide', CmdRailGuide())
 FreeCADGui.addCommand('Rocket_Standoff', CmdStandOff())
+
+FreeCADGui.addCommand('Rocket_FinGuide', CmdFinGuide())
 
 FreeCADGui.addCommand('Rocket_CalcBlackPowder', CmdCalcBlackPowder())
 FreeCADGui.addCommand('Rocket_CalcParachute', CmdCalcParachute())
