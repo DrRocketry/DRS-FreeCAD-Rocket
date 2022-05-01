@@ -212,7 +212,7 @@ class TaskPanelFinGuide:
             pass
         
     def onFinCount(self, value):
-        self._obj.HoleCount = int(value)
+        self._obj.FinCount = int(value)
         self._obj.Proxy.execute(self._obj)
         
     def onGlueRadius(self, value):

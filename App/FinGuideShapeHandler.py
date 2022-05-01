@@ -38,11 +38,13 @@ class FinGuideShapeHandler():
         self._placement = obj.Placement
 
         self._diameter = float(obj.Diameter)
+        self._radius = self._diameter / 2.0
         self._rootThickness = float(obj.RootThickness)
-        self._tipThickness = bool(obj.TipThickness)
+        self._tipThickness = float(obj.TipThickness)
         self._span = float(obj.Span)
+        self._finCount = int(obj.FinCount)
         self._glueRadius = float(obj.GlueRadius)
-        self._length = bool(obj.Length)
+        self._length = float(obj.Length)
         self._thickness = float(obj.Thickness)
 
         self._obj = obj
@@ -75,27 +77,59 @@ class FinGuideShapeHandler():
 
         return True
 
+    def _makeFace(self, obj):
+        return Part.Face(Part.Wire(obj))
+
+    def _makeProfile(self, offset = 0.0):
+        profile = Part.makeCircle(self._radius + offset)
+        profileFace = self._makeFace(profile)
+
+        fin = Part.makePolygon([
+            FreeCAD.Vector(0, 0),
+            FreeCAD.Vector(0, self._radius + self._span + offset),
+            FreeCAD.Vector(self._tipThickness / 2.0 + offset, self._radius + self._span + offset),
+            FreeCAD.Vector(self._rootThickness / 2.0 + offset, self._radius + offset),
+            FreeCAD.Vector(self._rootThickness / 2.0 + offset, 0),
+            FreeCAD.Vector(0, 0)
+        ])
+
+        mirror = FreeCAD.Matrix()
+        mirror.rotateY(math.pi)
+
+        finFace = self._makeFace(fin)
+
+        mirrorFin = finFace.copy()
+        mirrorFin.transformShape(mirror)
+
+        fusedFin = finFace.fuse(mirrorFin)
+
+        if self._glueRadius > 0:
+            circle = Part.makeCircle(self._glueRadius + offset, FreeCAD.Vector(self._rootThickness / 2.0, self._radius), FreeCAD.Vector(0, 0, 1))
+            circleFace = self._makeFace(circle)
+
+            mirrorCircle = circleFace.copy()
+            mirrorCircle.transformShape(mirror)
+            fusedFin = fusedFin.fuse(circleFace)
+            fusedFin = fusedFin.fuse(mirrorCircle)
+
+        fused = profileFace.fuse(fusedFin)
+        for i in range(1, self._finCount):
+            print(i)
+            mirror = FreeCAD.Matrix()
+            mirror.rotateZ((2 / self._finCount) * i * math.pi)
+            rotatedFin = fusedFin.copy()
+            rotatedFin.transformShape(mirror)
+            fused = fused.fuse(rotatedFin)
+
+        return fused
+
     def _drawFinGuide(self):
-        bulkhead = Part.makeCylinder(self._diameter / 2.0, self._thickness, FreeCAD.Vector(0,0,0), FreeCAD.Vector(1,0,0))
-        # if self._step:
-        #     step = Part.makeCylinder(self._stepDiameter / 2.0, self._stepThickness, FreeCAD.Vector(self._thickness,0,0), FreeCAD.Vector(1,0,0))
-        #     bulkhead = bulkhead.fuse(step)
+        innerProfile = self._makeProfile()
+        outerProfile = self._makeProfile(self._thickness)
+        profile = outerProfile.cut(innerProfile)
 
-        # # Add any holes
-        # if self._holes:
-        #     thickness = self._thickness
-        #     if self._step:
-        #         thickness += self._stepDiameter
-        #     for i in range(0, self._holeCount):
-        #         hole = Part.makeCylinder(self._holeDiameter / 2.0, thickness, FreeCAD.Vector(0,self._holeCenter,0), FreeCAD.Vector(1,0,0))
-
-        #         # Rotate around the centerline
-        #         aTrsf=FreeCAD.Matrix()
-        #         aTrsf.rotateX(((i * 2.0 *math.pi) / self._holeCount) + math.radians(self._holeOffset) + math.pi/2.0)
-        #         hole.transformShape(aTrsf)
-        #         bulkhead = bulkhead.cut(hole)
-
-        return bulkhead
+        guide = profile.extrude(FreeCAD.Vector(0, 0, self._length))
+        return guide
         
     def draw(self):
         if not self.isValidShape():
@@ -103,6 +137,6 @@ class FinGuideShapeHandler():
 
         try:
             self._obj.Shape = self._drawFinGuide()
-        except (ZeroDivisionError, Part.OCCError):
+        except (Part.OCCError):
             _err(translate('Rocket', "Fin guide parameters produce an invalid shape"))
             return
