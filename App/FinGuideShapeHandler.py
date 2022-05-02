@@ -46,6 +46,11 @@ class FinGuideShapeHandler():
         self._glueRadius = float(obj.GlueRadius)
         self._length = float(obj.Length)
         self._thickness = float(obj.Thickness)
+        self._tolerance = float(obj.Tolerance)
+
+        self._base = float(obj.Base)
+        self._baseDiameter = float(obj.BaseDiameter)
+        self._baseLength = float(obj.BaseLength)
 
         self._obj = obj
 
@@ -114,7 +119,6 @@ class FinGuideShapeHandler():
 
         fused = profileFace.fuse(fusedFin)
         for i in range(1, self._finCount):
-            print(i)
             mirror = FreeCAD.Matrix()
             mirror.rotateZ((2 / self._finCount) * i * math.pi)
             rotatedFin = fusedFin.copy()
@@ -124,11 +128,18 @@ class FinGuideShapeHandler():
         return fused
 
     def _drawFinGuide(self):
-        innerProfile = self._makeProfile()
-        outerProfile = self._makeProfile(self._thickness)
+        innerProfile = self._makeProfile(self._tolerance)
+        outerProfile = self._makeProfile(self._thickness + self._tolerance)
         profile = outerProfile.cut(innerProfile)
-
         guide = profile.extrude(FreeCAD.Vector(0, 0, self._length))
+
+        if self._base:
+            base = Part.makeCircle(self._baseDiameter / 2.0)
+            baseFace = self._makeFace(base)
+            baseFace = baseFace.cut(innerProfile)
+            baseExtrude = baseFace.extrude(FreeCAD.Vector(0, 0, self._baseLength))
+            guide = guide.fuse(baseExtrude)
+
         return guide
         
     def draw(self):

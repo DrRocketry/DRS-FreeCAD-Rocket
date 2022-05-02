@@ -50,9 +50,18 @@ class ShapeFinGuide(ShapeComponent):
             obj.addProperty('App::PropertyLength', 'GlueRadius', 'FinGuide', translate('App::Property', 'Radius of the cutout along the fillet of the fin')).GlueRadius = 5.0
 
         if not hasattr(obj,"Length"):
-            obj.addProperty('App::PropertyLength', 'Length', 'FinGuide', translate('App::Property', 'Length of the fin guide along the body tube')).Length = 2.0
+            obj.addProperty('App::PropertyLength', 'Length', 'FinGuide', translate('App::Property', 'Length of the fin guide along the body tube')).Length = 10.0
         if not hasattr(obj,"Thickness"):
             obj.addProperty('App::PropertyLength', 'Thickness', 'FinGuide', translate('App::Property', 'Thickness of the fin guide')).Thickness = 2.0
+        if not hasattr(obj,"Tolerance"):
+            obj.addProperty('App::PropertyLength', 'Tolerance', 'FinGuide', translate('App::Property', 'Fit tolerance')).Tolerance = 0.2
+
+        if not hasattr(obj,"Base"):
+            obj.addProperty('App::PropertyBool', 'Base', 'FinGuide', translate('App::Property', 'Fit tolerance')).Base = False
+        if not hasattr(obj,"BaseDiameter"):
+            obj.addProperty('App::PropertyLength', 'BaseDiameter', 'FinGuide', translate('App::Property', 'Fit tolerance')).BaseDiameter = 50.0
+        if not hasattr(obj,"BaseLength"):
+            obj.addProperty('App::PropertyLength', 'BaseLength', 'FinGuide', translate('App::Property', 'Fit tolerance')).BaseLength = 3.0
 
         if not hasattr(obj,"Shape"):
             obj.addProperty('Part::PropertyPartShape', 'Shape', 'FinGuide', translate('App::Property', 'Shape of the fin guide'))

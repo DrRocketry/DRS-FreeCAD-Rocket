@@ -95,6 +95,39 @@ class _FinGuideDialog(QDialog):
         self.thicknessInput = ui.createWidget("Gui::InputField")
         self.thicknessInput.unit = 'mm'
         self.thicknessInput.setFixedWidth(80)
+        
+        self.toleranceLabel = QtGui.QLabel(translate('Rocket', "Tolerance"), self)
+
+        self.toleranceInput = ui.createWidget("Gui::InputField")
+        self.toleranceInput.unit = 'mm'
+        self.toleranceInput.setFixedWidth(80)
+
+        self.baseGroup = QtGui.QGroupBox(translate('Rocket', "Base"), self)
+        self.baseGroup.setCheckable(True)
+        
+        self.baseDiameterLabel = QtGui.QLabel(translate('Rocket', "Diameter"), self)
+
+        self.baseDiameterInput = ui.createWidget("Gui::InputField")
+        self.baseDiameterInput.unit = 'mm'
+        self.baseDiameterInput.setFixedWidth(80)
+        
+        self.baseLengthLabel = QtGui.QLabel(translate('Rocket', "Length"), self)
+
+        self.baseLengthInput = ui.createWidget("Gui::InputField")
+        self.baseLengthInput.unit = 'mm'
+        self.baseLengthInput.setFixedWidth(80)
+
+        row = 0
+        grid = QGridLayout()
+
+        grid.addWidget(self.baseDiameterLabel, row, 0)
+        grid.addWidget(self.baseDiameterInput, row, 1)
+        row += 1
+
+        grid.addWidget(self.baseLengthLabel, row, 0)
+        grid.addWidget(self.baseLengthInput, row, 1)
+
+        self.baseGroup.setLayout(grid)
 
         layout = QGridLayout()
         row = 0
@@ -129,11 +162,18 @@ class _FinGuideDialog(QDialog):
 
         layout.addWidget(self.thicknessLabel, row, 0)
         layout.addWidget(self.thicknessInput, row, 1)
+        row += 1
+
+        layout.addWidget(self.toleranceLabel, row, 0)
+        layout.addWidget(self.toleranceInput, row, 1)
         # row += 1
 
-        layout.addItem(QtGui.QSpacerItem(0,0, QSizePolicy.Expanding, QSizePolicy.Expanding))
+        layout1 = QVBoxLayout()
+        layout1.addItem(layout)
+        layout1.addWidget(self.baseGroup)
+        layout1.addItem(QtGui.QSpacerItem(0,0, QSizePolicy.Expanding, QSizePolicy.Expanding))
 
-        self.setLayout(layout)
+        self.setLayout(layout1)
 
 class TaskPanelFinGuide:
 
@@ -154,6 +194,11 @@ class TaskPanelFinGuide:
 
         self._finGuideForm.lengthInput.textEdited.connect(self.onLength)
         self._finGuideForm.thicknessInput.textEdited.connect(self.onThickness)
+        self._finGuideForm.toleranceInput.textEdited.connect(self.onTolerance)
+
+        self._finGuideForm.baseGroup.toggled.connect(self.onBase)
+        self._finGuideForm.baseDiameterInput.textEdited.connect(self.onBaseDiameter)
+        self._finGuideForm.baseLengthInput.textEdited.connect(self.onBaseLength)
         
         self.update()
         
@@ -171,6 +216,11 @@ class TaskPanelFinGuide:
         self._obj.GlueRadius = self._finGuideForm.glueRadiusInput.text()
         self._obj.Length = self._finGuideForm.lengthInput.text()
         self._obj.Thickness = self._finGuideForm.thicknessInput.text()
+        self._obj.Tolerance = self._finGuideForm.toleranceInput.text()
+
+        self._obj.Base = self._finGuideForm.baseGroup.isChecked()
+        self._obj.BaseDiameter = self._finGuideForm.baseDiameterInput.text()
+        self._obj.BaseLength = self._finGuideForm.baseLengthInput.text()
 
     def transferFrom(self):
         "Transfer from the object to the dialog"
@@ -182,7 +232,12 @@ class TaskPanelFinGuide:
         self._finGuideForm.glueRadiusInput.setText(self._obj.GlueRadius.UserString)
         self._finGuideForm.lengthInput.setText(self._obj.Length.UserString)
         self._finGuideForm.thicknessInput.setText(self._obj.Thickness.UserString)
-        
+        self._finGuideForm.toleranceInput.setText(self._obj.Tolerance.UserString)
+
+        self._finGuideForm.baseGroup.setChecked(self._obj.Base)
+        self._finGuideForm.baseDiameterInput.setText(self._obj.BaseDiameter.UserString)
+        self._finGuideForm.baseLengthInput.setText(self._obj.BaseLength.UserString)
+
     def onDiameter(self, value):
         try:
             self._obj.Diameter = FreeCAD.Units.Quantity(value).Value
@@ -232,6 +287,35 @@ class TaskPanelFinGuide:
     def onThickness(self, value):
         try:
             self._obj.Thickness = FreeCAD.Units.Quantity(value).Value
+            self._obj.Proxy.execute(self._obj)
+        except ValueError:
+            pass
+        
+    def onTolerance(self, value):
+        try:
+            self._obj.Tolerance = FreeCAD.Units.Quantity(value).Value
+            self._obj.Proxy.execute(self._obj)
+        except ValueError:
+            pass
+        
+    def onBase(self, value):
+        try:
+            self._obj.Base = value
+            # self._obj.Ttw = self._finForm.ttwGroup.isChecked()
+            self._obj.Proxy.execute(self._obj)
+        except ValueError:
+            pass
+        
+    def onBaseDiameter(self, value):
+        try:
+            self._obj.BaseDiameter = FreeCAD.Units.Quantity(value).Value
+            self._obj.Proxy.execute(self._obj)
+        except ValueError:
+            pass
+        
+    def onBaseLength(self, value):
+        try:
+            self._obj.BaseLength = FreeCAD.Units.Quantity(value).Value
             self._obj.Proxy.execute(self._obj)
         except ValueError:
             pass
