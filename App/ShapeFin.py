@@ -30,7 +30,7 @@ from App.Constants import FIN_TYPE_TRAPEZOID, FIN_TYPE_ELLIPSE, FIN_TYPE_SKETCH
 from App.Constants import FIN_CROSS_SAME, FIN_CROSS_SQUARE, FIN_CROSS_ROUND, FIN_CROSS_AIRFOIL, FIN_CROSS_WEDGE, \
     FIN_CROSS_DIAMOND, FIN_CROSS_TAPER_LE, FIN_CROSS_TAPER_TE, FIN_CROSS_TAPER_LETE
 from App.Constants import FIN_DEBUG_FULL, FIN_DEBUG_PROFILE_ONLY, FIN_DEBUG_MASK_ONLY
-from App.Constants import PROP_TRANSIENT, PROP_HIDDEN
+from App.Constants import PROP_NONE, PROP_TRANSIENT, PROP_HIDDEN
 
 from App.FinTrapezoidShapeHandler import FinTrapezoidShapeHandler
 from App.FinEllipseShapeHandler import FinEllipseShapeHandler
@@ -108,10 +108,14 @@ class ShapeFin(ShapeComponent):
         if not hasattr(obj,"TtwThickness"):
             obj.addProperty('App::PropertyLength', 'TtwThickness', 'Fin', translate('App::Property', 'TTW thickness')).TtwThickness = 1.0
 
-        # These are only exposed for fin cans
+        if not hasattr(obj,"FinFillets"):
+            obj.addProperty('App::PropertyBool', 'FinFillets', 'Fin', translate('App::Property', 'Include fin fillets')).FinFillets = True
+        if not hasattr(obj,"FilletRadius"):
+            obj.addProperty('App::PropertyLength', 'FilletRadius', 'Fin', translate('App::Property', 'Fillet radius')).FilletRadius = 3.0
+
         if not hasattr(obj,"FinSet"):
             obj.addProperty('App::PropertyBool', 'FinSet', 'Fin', translate('App::Property', 'True when describing a set of fins')).FinSet = False
-        obj.setEditorMode('FinSet', PROP_HIDDEN)  # hide
+        obj.setEditorMode('ParentRadius', PROP_NONE)  # Was hidden before... now unhide
         if not hasattr(obj,"FinCount"):
             obj.addProperty('App::PropertyInteger', 'FinCount', 'Fin', translate('App::Property', 'Number of fins in a radial pattern')).FinCount = 3
         if not hasattr(obj,"FinSpacing"):
@@ -119,8 +123,8 @@ class ShapeFin(ShapeComponent):
 
         # Hidden properties used for calculation
         if not hasattr(obj,"ParentRadius"):
-            obj.addProperty('App::PropertyLength', 'ParentRadius', 'Fin', 'Parent radius').ParentRadius = 20.0 # No translation required for a hidden parameter
-        obj.setEditorMode('ParentRadius', PROP_TRANSIENT | PROP_HIDDEN)  # hide
+            obj.addProperty('App::PropertyLength', 'ParentRadius', 'Fin', translate('App::Property', 'Radius of the attached body tube')).ParentRadius = 0.0
+        obj.setEditorMode('ParentRadius', PROP_NONE)  # Was hidden before... now unhide
 
         if not hasattr(obj, "Profile"):
             obj.addProperty('App::PropertyLink', 'Profile', 'Fin', translate('App::Property', 'Custom fin sketch')).Profile = None
