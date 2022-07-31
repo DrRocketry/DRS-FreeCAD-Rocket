@@ -52,8 +52,10 @@ class _FinDialog(QDialog):
 
         self.tabWidget = QtGui.QTabWidget()
         self.tabGeneral = QtGui.QWidget()
+        self.tabFinset = QtGui.QWidget()
         self.tabTtw = QtGui.QWidget()
         self.tabWidget.addTab(self.tabGeneral, translate('Rocket', "General"))
+        self.tabWidget.addTab(self.tabFinset, translate('Rocket', "Fin Set"))
         self.tabWidget.addTab(self.tabTtw, translate('Rocket', "Fin Tabs"))
 
         layout = QVBoxLayout()
@@ -61,6 +63,7 @@ class _FinDialog(QDialog):
         self.setLayout(layout)
 
         self.setTabGeneral(sketch)
+        self.setTabFinset()
         self.setTabTtw()
 
     def setTabGeneral(self, sketch):
@@ -268,6 +271,75 @@ class _FinDialog(QDialog):
 
         self.tabGeneral.setLayout(layout)
 
+    def setTabFinset(self):
+
+        ui = FreeCADGui.UiLoader()
+
+        self.finSetGroup = QtGui.QGroupBox(translate('Rocket', "Fin Set"), self)
+        self.finSetGroup.setCheckable(True)
+        
+        self.finCountLabel = QtGui.QLabel(translate('Rocket', "Fin Count"), self)
+
+        self.finCountSpinBox = QtGui.QSpinBox(self)
+        self.finCountSpinBox.setMinimumWidth(100)
+        self.finCountSpinBox.setMinimum(1)
+        self.finCountSpinBox.setMaximum(10000)
+
+        self.finSpacingLabel = QtGui.QLabel(translate('Rocket', "Fin Spacing"), self)
+
+        self.finSpacingInput = ui.createWidget("Gui::InputField")
+        self.finSpacingInput.unit = 'deg'
+        self.finSpacingInput.setMinimumWidth(100)
+
+        self.filletGroup = QtGui.QGroupBox(translate('Rocket', "Fin Fillets"), self)
+        self.filletGroup.setCheckable(True)
+
+        self.filletRadiusLabel = QtGui.QLabel(translate('Rocket', "Radius"), self)
+
+        self.filletRadiusInput = ui.createWidget("Gui::InputField")
+        self.filletRadiusInput.unit = 'mm'
+        self.filletRadiusInput.setMinimumWidth(100)
+
+        self.parentRadiusLabel = QtGui.QLabel(translate('Rocket', "Parent Radius"), self)
+
+        self.parentRadiusInput = ui.createWidget("Gui::InputField")
+        self.parentRadiusInput.unit = 'mm'
+        self.parentRadiusInput.setMinimumWidth(100)
+
+        row = 0
+        grid = QGridLayout()
+
+        grid.addWidget(self.finCountLabel, row, 0)
+        grid.addWidget(self.finCountSpinBox, row, 1)
+        row += 1
+
+        grid.addWidget(self.finSpacingLabel, row, 0)
+        grid.addWidget(self.finSpacingInput, row, 1)
+
+        self.finSetGroup.setLayout(grid)
+
+        row = 0
+        grid = QGridLayout()
+
+        grid.addWidget(self.filletRadiusLabel, row, 0)
+        grid.addWidget(self.filletRadiusInput, row, 1)
+
+        self.filletGroup.setLayout(grid)
+
+        row = 0
+        grid = QGridLayout()
+
+        grid.addWidget(self.parentRadiusLabel, row, 0)
+        grid.addWidget(self.parentRadiusInput, row, 1)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.finSetGroup)
+        layout.addWidget(self.filletGroup)
+        layout.addItem(grid)
+        layout.addItem(QtGui.QSpacerItem(0,0, QSizePolicy.Expanding, QSizePolicy.Expanding))
+
+        self.tabFinset.setLayout(layout)
+
     def setTabTtw(self):
 
         ui = FreeCADGui.UiLoader()
@@ -359,6 +431,13 @@ class TaskPanelFin(QObject):
         self._finForm.sweepLengthInput.textEdited.connect(self.onSweepLength)
         self._finForm.sweepAngleInput.textEdited.connect(self.onSweepAngle)
 
+        self._finForm.finSetGroup.toggled.connect(self.onFinset)
+        self._finForm.finCountSpinBox.valueChanged.connect(self.onFinCount)
+        self._finForm.finSpacingInput.textEdited.connect(self.onFinSpacing)
+        self._finForm.filletGroup.toggled.connect(self.onFillet)
+        self._finForm.filletRadiusInput.textEdited.connect(self.onFilletRadius)
+        self._finForm.parentRadiusInput.textEdited.connect(self.onParentRadius)
+
         self._finForm.ttwGroup.toggled.connect(self.onTtw)
         self._finForm.ttwOffsetInput.textEdited.connect(self.onTTWOffset)
         self._finForm.ttwLengthInput.textEdited.connect(self.onTTWLength)
@@ -396,6 +475,13 @@ class TaskPanelFin(QObject):
         self._obj.SweepLength = self._finForm.sweepLengthInput.text()
         self._obj.SweepAngle = self._finForm.sweepAngleInput.text()
 
+        self._obj.FinSet = self._finForm.finSetGroup.isChecked()
+        self._obj.FinCount = self._finForm.finCountSpinBox.value()
+        self._obj.FinSpacing = self._finForm.finSpacingInput.text()
+        self._obj.FinFillets = self._finForm.filletGroup.isChecked()
+        self._obj.FilletRadius = self._finForm.filletRadiusInput.text()
+        self._obj.ParentRadius = self._finForm.parentRadiusInput.text()
+
         self._obj.Ttw = self._finForm.ttwGroup.isChecked()
         self._obj.TtwOffset = self._finForm.ttwOffsetInput.text()
         self._obj.TtwLength = self._finForm.ttwLengthInput.text()
@@ -424,6 +510,13 @@ class TaskPanelFin(QObject):
         self._finForm.sweepLengthInput.setText(self._obj.SweepLength.UserString)
         self._finForm.sweepAngleInput.setText(self._obj.SweepAngle.UserString)
 
+        self._finForm.finSetGroup.setChecked(self._obj.FinSet)
+        self._finForm.finCountSpinBox.setValue(self._obj.FinCount)
+        self._finForm.finSpacingInput.setText(self._obj.FinSpacing.UserString)
+        self._finForm.filletGroup.setChecked(self._obj.FinFillets)
+        self._finForm.filletRadiusInput.setText(self._obj.FilletRadius.UserString)
+        self._finForm.parentRadiusInput.setText(self._obj.ParentRadius.UserString)
+
         self._finForm.ttwGroup.setChecked(self._obj.Ttw)
         self._finForm.ttwOffsetInput.setText(self._obj.TtwOffset.UserString)
         self._finForm.ttwLengthInput.setText(self._obj.TtwLength.UserString)
@@ -436,6 +529,8 @@ class TaskPanelFin(QObject):
         self._enableTipPercent()
         self._sweepAngleFromLength(self._obj.SweepLength)
         self._setTtwState()
+        self._setFinSetState()
+        self._setFilletState()
 
     def redraw(self):
         if not self._redrawPending:
@@ -785,6 +880,42 @@ class TaskPanelFin(QObject):
             self.redraw()
         except ValueError:
             pass
+
+    def _setFinSetState(self):
+        self._finForm.parentRadiusInput.setEnabled(self._obj.FinSet or self._obj.FinFillets)
+
+    def onFinset(self, value):
+        self._obj.FinSet = self._finForm.finSetGroup.isChecked()
+        self._setFinSetState()
+
+        self.redraw()
+        
+    def onFinCount(self, value):
+        self._obj.FinCount = value
+        self._obj.FinSpacing = 360.0 / float(value)
+        self._finForm.finSpacingInput.setText(self._obj.FinSpacing.UserString)
+        self.redraw()
+        
+    def onFinSpacing(self, value):
+        self._obj.FinSpacing = value
+        self.redraw()
+
+    def _setFilletState(self):
+        self._finForm.parentRadiusInput.setEnabled(self._obj.FinSet or self._obj.FinFillets)
+
+    def onFillet(self, value):
+        self._obj.FinFillets = self._finForm.filletGroup.isChecked()
+        self._setFilletState()
+
+        self.redraw()
+        
+    def onFilletRadius(self, value):
+        self._obj.FilletRadius = value
+        self.redraw()
+        
+    def onParentRadius(self, value):
+        self._obj.ParentRadius = value
+        self.redraw()
 
     def onRedraw(self):
         self._obj.Proxy.execute(self._obj)
