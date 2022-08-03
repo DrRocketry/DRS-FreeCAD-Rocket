@@ -30,64 +30,62 @@ import math
 
 from DraftTools import translate
 
-class ConcaveFillet:
+def _isVertical(point1, point2):
+    return (point1.y == point2.y)
 
-    def _isVertical(point1, point2):
-        return (point1.y == point2.y)
+def _isHorizontal(point1, point2)
+    return (point1.x == point2.x)
 
-    def _isHorizontal(point1, point2)
-        return (point1.z == point2.z)
+def _line(point1, point2):
+    # Line is not vertical
+    rise = point1.y - point2.y
+    run = point1.x - point2.x
+    slope = rise / run
+    intercept = point1.y - (slope * point1.x)
+    return slope, intercept
 
-    def _line(point1, point2):
-        # Line is not vertical
-        rise = point1.z - point2.z
-        run = point1.y - point2.y
-        slope = rise / run
-        intercept = point1.z - (slope * point1.y)
-        return slope, intercept
+def _parallel(point1, point2, distance):
+    slope, intercept = _line(point1, point2)
+    if slope < 0:                   # This needs more work to ensure we're in the upper left (or right?) quadrant
+        distance = -distance
+    b2 = distance * math.sqrt(slope * slope + 1) + intercept
+    return slope, b2
 
-    def _parallel(point1, point2, distance):
-        slope, intercept = ConcaveFillet._line(point1, point2)
-        if slope < 0:                   # This needs more work to ensure we're in the upper left (or right?) quadrant
-            distance = -distance
-        b2 = distance * math.sqrt(slope * slope + 1) + intercept
-        return slope, b2
+def tubeFillet(filletRadius, tubeRadius, point1, point2):
+    #
+    # Returns the center point for the fillet radius that is tangent to the body tube
+    # and the line formed by the two points.
+    #
+    # The body tube diameter and the line need to be coplanar in the x,y plane
+    #
+    return FreeCAD.Vector(0, 0, 0)
 
-    def tubeFillet(filletRadius, tubeRadius, point1, point2):
-        #
-        # Returns the center point for the fillet radius that is tangent to the body tube
-        # and the line formed by the two points.
-        #
-        # The body tube diameter and the line need to be coplanar in the y,z plane
-        #
-        return FreeCAD.Vector(0, 0, 0)
+def planeFillet(filletRadius, point1, point2, point3, point4):
+    #
+    # Returns the center point for the fillet radius that is tangent to the lines formed
+    # by (point1, point2) and (point3, point4). The lines can not be parallel
+    #
+    # The lines need to be coplanar in the x,y plane
+    #
+    if _isVertical(point1, point2):
+        x = point1.x - filletRadius
+        if _isHorizontal(point3, point4):
+            y = point3.y + filletRadius
+        else:
+            slope, intercept = _parallel(point3, point4, filletRadius)
+            y = slope * x + intercept
+        return FreeCAD.Vector(x, y, 0)
+    elif _isVertical(point3, point4):
+        x = point3.x - filletRadius
+        if _isHorizontal(point1, point2):
+            y = point1.y + filletRadius
+        else:
+            slope, intercept = _parallel(point1, point2, filletRadius)
+            y = slope * x + intercept
+        return FreeCAD.Vector(x, y, 0)
 
-    def planeFillet(filletRadius, point1, point2, point3, point4):
-        #
-        # Returns the center point for the fillet radius that is tangent to the lines formed
-        # by (point1, point2) and (point3, point4). The lines can not be parallel
-        #
-        # The lines need to be coplanar in the y,z plane
-        #
-        if ConcaveFillet._isVertical(point1, point2):
-            y = point1._y - filletRadius
-            if ConcaveFillet._isHorizontal(point3, point4):
-                z = point3._z + filletRadius
-            else:
-                slope, intercept = ConcaveFillet._parallel(point3, point4, filletRadius)
-                z = slope * y + intercept
-            return FreeCAD.Vector(0, y, z)
-        elif ConcaveFillet._isVertical(point3, point4):
-            y = point3._y - filletRadius
-            if ConcaveFillet._isHorizontal(point1, point2):
-                z = point1._z + filletRadius
-            else:
-                slope, intercept = ConcaveFillet._parallel(point1, point2, filletRadius)
-                z = slope * y + intercept
-            return FreeCAD.Vector(0, y, z)
-
-        slope1, intercept1 = ConcaveFillet._parallel(point1, point2, filletRadius)
-        slope2, intercept2 = ConcaveFillet._parallel(point3, point4, filletRadius)
-        y = (intercept2 - intercept1) / (slope1 - slope2)
-        z = slope1 * y + intercept1
-        return FreeCAD.Vector(0, y, z)
+    slope1, intercept1 = _parallel(point1, point2, filletRadius)
+    slope2, intercept2 = _parallel(point3, point4, filletRadius)
+    x = (intercept2 - intercept1) / (slope1 - slope2)
+    y = slope1 * x + intercept1
+    return FreeCAD.Vector(x, y, 0)
