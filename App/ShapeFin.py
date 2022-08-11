@@ -123,7 +123,7 @@ class ShapeFin(ShapeComponent):
 
         # Hidden properties used for calculation
         if not hasattr(obj,"ParentRadius"):
-            obj.addProperty('App::PropertyLength', 'ParentRadius', 'Fin', translate('App::Property', 'Radius of the attached body tube')).ParentRadius = 24.8
+            obj.addProperty('App::PropertyLength', 'ParentRadius', 'Fin', translate('App::Property', 'Radius of the attached body tube')).ParentRadius = 0 # 24.8
         obj.setEditorMode('ParentRadius', PROP_NONE)  # Was hidden before... now unhide
 
         if not hasattr(obj, "Profile"):

@@ -93,6 +93,24 @@ class FinShapeHandler:
 
         return points 
 
+    def _airfoilCurveHalf(self, foreX, chord, thickness, height, resolution):
+        points = []
+        for i in range(0, resolution):
+            
+            x = float(i) / float(resolution)
+            y = self._airfoilY(x, thickness)
+            points.append(FreeCAD.Vector(foreX - (x * chord), y, height))
+
+        points.append(FreeCAD.Vector(foreX - chord, 0.0, height))
+
+        # Circle back for the other side of the airfoil
+        # for i in range(0, resolution):
+        #     vector = points[resolution - i]
+        #     points.append(FreeCAD.Vector(vector.x, -vector.y, vector.z))
+        # points.append(FreeCAD.Vector(foreX, 0.0, height))
+
+        return points 
+
     def _makeSpline(self, points):
         spline = Part.BSplineCurve()
         spline.buildFromPoles(points)
@@ -112,6 +130,15 @@ class FinShapeHandler:
         # Standard NACA 4 digit symmetrical airfoil
 
         points = self._airfoilCurve(foreX, chord, thickness, height, 100)
+        spline = self._makeSpline(points)
+
+        wire = Part.Wire([spline.toShape()])
+        return wire
+
+    def _makeChordProfileAirfoilHalf(self, foreX, chord, thickness, height):
+        # Standard NACA 4 digit symmetrical airfoil
+
+        points = self._airfoilCurveHalf(foreX, chord, thickness, height, 100)
         spline = self._makeSpline(points)
 
         wire = Part.Wire([spline.toShape()])
@@ -270,6 +297,14 @@ class FinShapeHandler:
         profiles = []
         return profiles
 
+    def _makeFilletProfiles(self):
+        profiles = []
+        path = None
+        return profiles, path
+
+    def _drawFillet(self):
+        return None
+
     def _makeCommon(self):
         # Override this id we have a "masking" shape
         return None
@@ -326,6 +361,22 @@ class FinShapeHandler:
 
         return Part.makeCompound(fins)
 
+    def _makeSweep(self, path, sections):
+        '''
+        Create a Part::Sweep object and definte it's parameters
+        sections - a list containing one or more sections to sweep
+        path - the sweep path edge
+
+        from https://forum.freecadweb.org/viewtopic.php?t=35373
+        '''
+        sweep = App.ActiveDocument.addObject('Part::Sweep','Sweep')
+        sweep.Sections = sections
+        sweep.Spine = path
+        sweep.Solid=False #True?
+        sweep.Frenet=False
+        
+        App.ActiveDocument.recompute()
+
     def draw(self):
         
         if not self.isValidShape():
@@ -335,7 +386,11 @@ class FinShapeHandler:
             if self._obj.FinSet:
                 self._obj.Shape = self._drawFinSet()
             else:
-                self._obj.Shape = self._drawFin()
+                fin = self._drawFin()
+                fillet = self._drawFillet()
+                if fillet is not None:
+                    fin = fin.fuse(fillet)
+                self._obj.Shape = fin
             self._obj.Placement = self._placement
 
         except (ZeroDivisionError, Part.OCCError):
