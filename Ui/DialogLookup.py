@@ -32,7 +32,6 @@ from DraftTools import translate
 
 from PySide import QtGui, QtCore
 from PySide.QtGui import QStandardItemModel, QStandardItem
-from PySide.QtCore import Qt
 from PySide2.QtWidgets import QVBoxLayout, QHBoxLayout
 
 from App.Constants import COMPONENT_TYPE_BODYTUBE, COMPONENT_TYPE_BULKHEAD, COMPONENT_TYPE_CENTERINGRING, \
@@ -63,6 +62,7 @@ _compatible = {
     COMPONENT_TYPE_TRANSITION : (COMPONENT_TYPE_TRANSITION,)
 }
 
+
 class DialogLookup(QtGui.QDialog):
     def __init__(self, lookup):
         super().__init__()
@@ -70,8 +70,12 @@ class DialogLookup(QtGui.QDialog):
         self._lookup = lookup
         self._model = QStandardItemModel() # (4, 4)
 
+        # self.initSortColumns(lookup)
         self.initUI()
         self.initDB()
+
+        # Default result is an empty dict
+        self.result = {}
 
     def initUI(self):
         global _compatible
@@ -87,7 +91,7 @@ class DialogLookup(QtGui.QDialog):
         searchLabel = QtGui.QLabel(translate('Rocket', "Search"), self)
 
         self._searchInput = QtGui.QLineEdit(self)
-        self._searchInput.setFixedWidth(80)
+        self._searchInput.setMinimumWidth(80)
         self._searchInput.textEdited.connect(self.onSearch)
 
         lookupTypeLabel = QtGui.QLabel(translate('Rocket', "Component"), self)
@@ -99,6 +103,7 @@ class DialogLookup(QtGui.QDialog):
 
         self._dbTable = QtGui.QTableView(self)
         self._dbTable.setModel(self._model)
+
         self._dbTable.setSelectionBehavior(QtGui.QTableView.SelectRows)
         self._dbTable.setSelectionMode(QtGui.QTableView.SingleSelection)
         self._dbTable.setSortingEnabled(True)
@@ -149,7 +154,7 @@ class DialogLookup(QtGui.QDialog):
         value = str(value).strip()
         if len(value) > 0:
             for column in range(self._model.columnCount()):
-                items = self._model.findItems(value, Qt.MatchContains, column)
+                items = self._model.findItems(value, QtCore.Qt.MatchContains, column)
                 for item in items:
                     row = item.row()
                     if not row in rows:
@@ -181,11 +186,15 @@ class DialogLookup(QtGui.QDialog):
             self.result = {}
         self.close()
 
+    def _getItemFromRow(self, row):
+        item = self._model.item(row, 0)
+        return item
+
     def _getSelectedBodyTube(self, row):
         try:
-            index = int(self._model.item(row, 0).text())
-            cone = getBodyTube(self._connection, index)
-            return cone
+            index = int(self._getItemFromRow(row).text())
+            tube = getBodyTube(self._connection, index)
+            return tube
         except NotFoundError:
             _err(translate('Rocket', "Body tube not found"))
         except MultipleEntryError:
@@ -194,7 +203,7 @@ class DialogLookup(QtGui.QDialog):
 
     def _getSelectedNose(self, row):
         try:
-            index = int(self._model.item(row, 0).text())
+            index = int(self._getItemFromRow(row).text())
             cone = getNoseCone(self._connection, index)
             return cone
         except NotFoundError:
@@ -205,7 +214,7 @@ class DialogLookup(QtGui.QDialog):
 
     def _getSelectedTransition(self, row):
         try:
-            index = int(self._model.item(row, 0).text())
+            index = int(self._getItemFromRow(row).text())
             tran = getTransition(self._connection, index)
             return tran
         except NotFoundError:
@@ -293,11 +302,11 @@ class DialogLookup(QtGui.QDialog):
         self._model.setHorizontalHeaderItem(1, self._newItem(translate('Rocket', "Manufacturer")))
         self._model.setHorizontalHeaderItem(2, self._newItem(translate('Rocket', "Part Number")))
         self._model.setHorizontalHeaderItem(3, self._newItem(translate('Rocket', "Description")))
-        self._model.setHorizontalHeaderItem(4, self._newItem(translate('Rocket', "Diameter")))
-        self._model.setHorizontalHeaderItem(5, self._newItem(translate('Rocket', "Length")))
-        self._model.setHorizontalHeaderItem(6, self._newItem(translate('Rocket', "Shoulder Diameter")))
-        self._model.setHorizontalHeaderItem(7, self._newItem(translate('Rocket', "Shoulder Length")))
-        self._model.setHorizontalHeaderItem(8, self._newItem(translate('Rocket', "Shape")))
+        self._model.setHorizontalHeaderItem(4, self._newItem(translate('Rocket', "Shape")))
+        self._model.setHorizontalHeaderItem(5, self._newItem(translate('Rocket', "Diameter")))
+        self._model.setHorizontalHeaderItem(6, self._newItem(translate('Rocket', "Length")))
+        self._model.setHorizontalHeaderItem(7, self._newItem(translate('Rocket', "Shoulder Diameter")))
+        self._model.setHorizontalHeaderItem(8, self._newItem(translate('Rocket', "Shoulder Length")))
 
         rowCount = 0
         for row in rows:
@@ -305,11 +314,11 @@ class DialogLookup(QtGui.QDialog):
             self._model.setItem(rowCount, 1, self._newItem(str(row["manufacturer"])))
             self._model.setItem(rowCount, 2, self._newItem(str(row["part_number"])))
             self._model.setItem(rowCount, 3, self._newItem(str(row["description"])))
-            self._model.setItem(rowCount, 4, self._newItem(self._itemWithDimension(row["diameter"], row["diameter_units"])))
-            self._model.setItem(rowCount, 5, self._newItem(self._itemWithDimension(row["length"], row["length_units"])))
-            self._model.setItem(rowCount, 6, self._newItem(self._itemWithDimension(row["shoulder_diameter"], row["shoulder_diameter_units"])))
-            self._model.setItem(rowCount, 7, self._newItem(self._itemWithDimension(row["shoulder_length"], row["shoulder_length_units"])))
-            self._model.setItem(rowCount, 8, self._newItem(str(row["shape"])))
+            self._model.setItem(rowCount, 4, self._newItem(str(row["shape"])))
+            self._model.setItem(rowCount, 5, self._newItem(self._itemWithDimension(row["diameter"], row["diameter_units"])))
+            self._model.setItem(rowCount, 6, self._newItem(self._itemWithDimension(row["length"], row["length_units"])))
+            self._model.setItem(rowCount, 7, self._newItem(self._itemWithDimension(row["shoulder_diameter"], row["shoulder_diameter_units"])))
+            self._model.setItem(rowCount, 8, self._newItem(self._itemWithDimension(row["shoulder_length"], row["shoulder_length_units"])))
 
             rowCount += 1
 
@@ -325,14 +334,14 @@ class DialogLookup(QtGui.QDialog):
         self._model.setHorizontalHeaderItem(1, self._newItem(translate('Rocket', "Manufacturer")))
         self._model.setHorizontalHeaderItem(2, self._newItem(translate('Rocket', "Part Number")))
         self._model.setHorizontalHeaderItem(3, self._newItem(translate('Rocket', "Description")))
-        self._model.setHorizontalHeaderItem(4, self._newItem(translate('Rocket', "Fore Diameter")))
-        self._model.setHorizontalHeaderItem(5, self._newItem(translate('Rocket', "Aft Diameter")))
-        self._model.setHorizontalHeaderItem(6, self._newItem(translate('Rocket', "Length")))
-        self._model.setHorizontalHeaderItem(7, self._newItem(translate('Rocket', "Fore Shoulder Diameter")))
-        self._model.setHorizontalHeaderItem(8, self._newItem(translate('Rocket', "Fore Shoulder Length")))
-        self._model.setHorizontalHeaderItem(9, self._newItem(translate('Rocket', "Aft Shoulder Diameter")))
-        self._model.setHorizontalHeaderItem(10, self._newItem(translate('Rocket', "Aft Shoulder Length")))
-        self._model.setHorizontalHeaderItem(11, self._newItem(translate('Rocket', "Shape")))
+        self._model.setHorizontalHeaderItem(4, self._newItem(translate('Rocket', "Shape")))
+        self._model.setHorizontalHeaderItem(5, self._newItem(translate('Rocket', "Fore Diameter")))
+        self._model.setHorizontalHeaderItem(6, self._newItem(translate('Rocket', "Aft Diameter")))
+        self._model.setHorizontalHeaderItem(7, self._newItem(translate('Rocket', "Length")))
+        self._model.setHorizontalHeaderItem(8, self._newItem(translate('Rocket', "Fore Shoulder Diameter")))
+        self._model.setHorizontalHeaderItem(9, self._newItem(translate('Rocket', "Fore Shoulder Length")))
+        self._model.setHorizontalHeaderItem(10, self._newItem(translate('Rocket', "Aft Shoulder Diameter")))
+        self._model.setHorizontalHeaderItem(11, self._newItem(translate('Rocket', "Aft Shoulder Length")))
 
         rowCount = 0
         for row in rows:
@@ -340,14 +349,14 @@ class DialogLookup(QtGui.QDialog):
             self._model.setItem(rowCount, 1, self._newItem(str(row["manufacturer"])))
             self._model.setItem(rowCount, 2, self._newItem(str(row["part_number"])))
             self._model.setItem(rowCount, 3, self._newItem(str(row["description"])))
-            self._model.setItem(rowCount, 4, self._newItem(self._itemWithDimension(row["fore_outside_diameter"], row["fore_outside_diameter_units"])))
-            self._model.setItem(rowCount, 5, self._newItem(self._itemWithDimension(row["aft_outside_diameter"], row["aft_outside_diameter_units"])))
-            self._model.setItem(rowCount, 6, self._newItem(self._itemWithDimension(row["length"], row["length_units"])))
-            self._model.setItem(rowCount, 7, self._newItem(self._itemWithDimension(row["fore_shoulder_diameter"], row["fore_shoulder_diameter_units"])))
-            self._model.setItem(rowCount, 8, self._newItem(self._itemWithDimension(row["fore_shoulder_length"], row["fore_shoulder_length_units"])))
-            self._model.setItem(rowCount, 9, self._newItem(self._itemWithDimension(row["aft_shoulder_diameter"], row["aft_shoulder_diameter_units"])))
-            self._model.setItem(rowCount, 10, self._newItem(self._itemWithDimension(row["aft_shoulder_length"], row["aft_shoulder_length_units"])))
-            self._model.setItem(rowCount, 11, self._newItem(str(row["shape"])))
+            self._model.setItem(rowCount, 4, self._newItem(str(row["shape"])))
+            self._model.setItem(rowCount, 5, self._newItem(self._itemWithDimension(row["fore_outside_diameter"], row["fore_outside_diameter_units"])))
+            self._model.setItem(rowCount, 6, self._newItem(self._itemWithDimension(row["aft_outside_diameter"], row["aft_outside_diameter_units"])))
+            self._model.setItem(rowCount, 7, self._newItem(self._itemWithDimension(row["length"], row["length_units"])))
+            self._model.setItem(rowCount, 8, self._newItem(self._itemWithDimension(row["fore_shoulder_diameter"], row["fore_shoulder_diameter_units"])))
+            self._model.setItem(rowCount, 9, self._newItem(self._itemWithDimension(row["fore_shoulder_length"], row["fore_shoulder_length_units"])))
+            self._model.setItem(rowCount, 10, self._newItem(self._itemWithDimension(row["aft_shoulder_diameter"], row["aft_shoulder_diameter_units"])))
+            self._model.setItem(rowCount, 11, self._newItem(self._itemWithDimension(row["aft_shoulder_length"], row["aft_shoulder_length_units"])))
 
             rowCount += 1
 

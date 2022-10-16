@@ -54,7 +54,7 @@ def makeFin(name):
 
 class CmdFin:
     def Activated(self):
-        FreeCAD.ActiveDocument.openTransaction("Create nose cone")
+        FreeCAD.ActiveDocument.openTransaction("Create fin")
         FreeCADGui.addModule("Ui.CmdFin")
         FreeCADGui.doCommand("Ui.CmdFin.makeFin('Fin')")
         FreeCADGui.doCommand("FreeCADGui.activeDocument().setEdit(FreeCAD.ActiveDocument.ActiveObject.Name,0)")

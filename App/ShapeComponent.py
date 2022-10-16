@@ -74,7 +74,7 @@ class ShapeComponent(ShapeBase):
             
         self._obj = obj
         obj.Proxy=self
-        self.version = '2.2'
+        self.version = '2.3'
 
     def positionChild(self, obj, parent, parentBase, parentLength, parentRadius):
         # Calculate any auto radii

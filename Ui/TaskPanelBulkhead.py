@@ -58,7 +58,7 @@ class _BulkheadDialog(QDialog):
 
         self.diameterInput = ui.createWidget("Gui::InputField")
         self.diameterInput.unit = 'mm'
-        self.diameterInput.setFixedWidth(80)
+        self.diameterInput.setMinimumWidth(100)
 
         self.autoDiameterCheckbox = QtGui.QCheckBox(translate('Rocket', "auto"), self)
         self.autoDiameterCheckbox.setCheckState(QtCore.Qt.Unchecked)
@@ -67,14 +67,14 @@ class _BulkheadDialog(QDialog):
 
         self.thicknessInput = ui.createWidget("Gui::InputField")
         self.thicknessInput.unit = 'mm'
-        self.thicknessInput.setFixedWidth(80)
+        self.thicknessInput.setMinimumWidth(100)
 
         if crPanel:
             self.centerDiameterLabel = QtGui.QLabel(translate('Rocket', "Inner Diameter"), self)
 
             self.centerDiameterInput = ui.createWidget("Gui::InputField")
             self.centerDiameterInput.unit = 'mm'
-            self.centerDiameterInput.setFixedWidth(80)
+            self.centerDiameterInput.setMinimumWidth(100)
 
             self.autoCenterDiameterCheckbox = QtGui.QCheckBox(translate('Rocket', "auto"), self)
             self.autoCenterDiameterCheckbox.setCheckState(QtCore.Qt.Unchecked)
@@ -86,13 +86,13 @@ class _BulkheadDialog(QDialog):
 
             self.notchWidthInput = ui.createWidget("Gui::InputField")
             self.notchWidthInput.unit = 'mm'
-            self.notchWidthInput.setFixedWidth(80)
+            self.notchWidthInput.setMinimumWidth(100)
 
             self.notchHeightLabel = QtGui.QLabel(translate('Rocket', "Height"), self)
 
             self.notchHeightInput = ui.createWidget("Gui::InputField")
             self.notchHeightInput.unit = 'mm'
-            self.notchHeightInput.setFixedWidth(80)
+            self.notchHeightInput.setMinimumWidth(100)
 
         self.stepGroup = QtGui.QGroupBox(translate('Rocket', "Step"), self)
         self.stepGroup.setCheckable(True)
@@ -101,13 +101,13 @@ class _BulkheadDialog(QDialog):
 
         self.stepDiameterInput = ui.createWidget("Gui::InputField")
         self.stepDiameterInput.unit = 'mm'
-        self.stepDiameterInput.setFixedWidth(80)
+        self.stepDiameterInput.setMinimumWidth(100)
 
         self.stepThicknessLabel = QtGui.QLabel(translate('Rocket', "Thickness"), self)
 
         self.stepThicknessInput = ui.createWidget("Gui::InputField")
         self.stepThicknessInput.unit = 'mm'
-        self.stepThicknessInput.setFixedWidth(80)
+        self.stepThicknessInput.setMinimumWidth(100)
 
         self.holeGroup = QtGui.QGroupBox(translate('Rocket', "Holes"), self)
         self.holeGroup.setCheckable(True)
@@ -116,18 +116,18 @@ class _BulkheadDialog(QDialog):
 
         self.holeDiameterInput = ui.createWidget("Gui::InputField")
         self.holeDiameterInput.unit = 'mm'
-        self.holeDiameterInput.setFixedWidth(80)
+        self.holeDiameterInput.setMinimumWidth(100)
 
         self.holeCenterLabel = QtGui.QLabel(translate('Rocket', "Center"), self)
 
         self.holeCenterInput = ui.createWidget("Gui::InputField")
         self.holeCenterInput.unit = 'mm'
-        self.holeCenterInput.setFixedWidth(80)
+        self.holeCenterInput.setMinimumWidth(100)
 
         self.holeCountLabel = QtGui.QLabel(translate('Rocket', "Count"), self)
 
         self.holeCountSpinBox = QtGui.QSpinBox(self)
-        self.holeCountSpinBox.setFixedWidth(80)
+        self.holeCountSpinBox.setMinimumWidth(100)
         self.holeCountSpinBox.setMinimum(1)
         self.holeCountSpinBox.setMaximum(10000)
 
@@ -136,7 +136,7 @@ class _BulkheadDialog(QDialog):
         # Offsets can be positive or negative so no validator required
         self.holeOffsetInput = ui.createWidget("Gui::InputField")
         self.holeOffsetInput.unit = 'deg'
-        self.holeOffsetInput.setFixedWidth(80)
+        self.holeOffsetInput.setMinimumWidth(100)
 
         # Notch group
         if crPanel:
@@ -515,7 +515,6 @@ class TaskPanelBulkhead:
 
     def clicked(self,button):
         if button == QtGui.QDialogButtonBox.Apply:
-            #print "Apply"
             self.transferTo()
             self._obj.Proxy.execute(self._obj) 
         

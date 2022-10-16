@@ -50,6 +50,11 @@ STYLE_SOLID_CORE = "solid core" # Used by transitions, not nose cones
 STYLE_HOLLOW = "hollow"
 STYLE_CAPPED = "capped"
 
+# Cap styles
+STYLE_CAP_SOLID = "solid"
+STYLE_CAP_BAR = "bar"
+STYLE_CAP_CROSS = "cross"
+
 # Part shapes
 TYPE_CONE = "cone"
 TYPE_BLUNTED_CONE = "blunted cone"
@@ -80,6 +85,19 @@ FIN_CROSS_DIAMOND = "diamond"
 FIN_CROSS_TAPER_LE = "LE taper"
 FIN_CROSS_TAPER_TE = "TE taper"
 FIN_CROSS_TAPER_LETE = "taper"
+
+# Fin can edges
+FINCAN_EDGE_SQUARE = "square"
+FINCAN_EDGE_ROUND = "round"
+FINCAN_EDGE_TAPER = "taper"
+
+FINCAN_PRESET_CUSTOM = 'Custom'
+FINCAN_PRESET_1_8 = '1/8"'
+FINCAN_PRESET_3_16 = '3/16"'
+FINCAN_PRESET_1_4 = '1/4"'
+
+FINCAN_COUPLER_MATCH_ID = "Flush with fin can"
+FINCAN_COUPLER_STEPPED = "Stepped"
 
 FIN_DEBUG_FULL = "Full"
 FIN_DEBUG_PROFILE_ONLY = "Profile"
@@ -126,13 +144,18 @@ LOCATION_SURFACE = QT_TRANSLATE_NOOP('Rocket', "Surface of the parent component"
 LOCATION_CENTER = QT_TRANSLATE_NOOP('Rocket', "Center of the parent component")
 
 # Part properties, defined in /App/PropertyContainer.h for cpp
-# These can be bitwise or'ed to combine properties
+# These can be bitwise or'ed to combine properties, when calling addProperty
 PROP_NONE = 0           # No special property type
 PROP_READONLY = 1       # Property is read-only in the editor
 PROP_TRANSIENT = 2      # Property won't be saved to file
 PROP_HIDDEN = 4         # Property won't appear in the editor
 PROP_OUTPUT = 8         # Modified property doesn't touch its parent container
 PROP_NORECOMPUTE = 16   # Modified property doesn't touch its container for recompute
+
+# A subset for use with setEditorMode calls
+EDITOR_NONE = 0
+EDITOR_READONLY = 1
+EDITOR_HIDDEN = 2
 
 # Fastener properties
 CONTERSINK_ANGLE_60 = "60"

@@ -116,13 +116,13 @@ class _FinDialog(QDialog):
 
         self.rootChordInput = ui.createWidget("Gui::InputField")
         self.rootChordInput.unit = 'mm'
-        self.rootChordInput.setFixedWidth(80)
+        self.rootChordInput.setMinimumWidth(100)
 
         self.rootThicknessLabel = QtGui.QLabel(translate('Rocket', "Thickness"), self)
 
         self.rootThicknessInput = ui.createWidget("Gui::InputField")
         self.rootThicknessInput.unit = 'mm'
-        self.rootThicknessInput.setFixedWidth(80)
+        self.rootThicknessInput.setMinimumWidth(100)
 
         self.rootPerCentLabel = QtGui.QLabel(translate('Rocket', "Use percentage"), self)
 
@@ -133,13 +133,13 @@ class _FinDialog(QDialog):
 
         self.rootLength1Input = ui.createWidget("Gui::InputField")
         self.rootLength1Input.unit = 'mm'
-        self.rootLength1Input.setFixedWidth(80)
+        self.rootLength1Input.setMinimumWidth(100)
 
         self.rootLength2Label = QtGui.QLabel(translate('Rocket', "Length 2"), self)
 
         self.rootLength2Input = ui.createWidget("Gui::InputField")
         self.rootLength2Input.unit = 'mm'
-        self.rootLength2Input.setFixedWidth(80)
+        self.rootLength2Input.setMinimumWidth(100)
 
         self.tipGroup = QtGui.QGroupBox(translate('Rocket', "Fin Tip"), self)
 
@@ -155,13 +155,13 @@ class _FinDialog(QDialog):
 
         self.tipChordInput = ui.createWidget("Gui::InputField")
         self.tipChordInput.unit = 'mm'
-        self.tipChordInput.setFixedWidth(80)
+        self.tipChordInput.setMinimumWidth(100)
 
         self.tipThicknessLabel = QtGui.QLabel(translate('Rocket', "Thickness"), self)
 
         self.tipThicknessInput = ui.createWidget("Gui::InputField")
         self.tipThicknessInput.unit = 'mm'
-        self.tipThicknessInput.setFixedWidth(80)
+        self.tipThicknessInput.setMinimumWidth(100)
 
         self.tipPerCentLabel = QtGui.QLabel(translate('Rocket', "Use percentage"), self)
 
@@ -172,33 +172,33 @@ class _FinDialog(QDialog):
 
         self.tipLength1Input = ui.createWidget("Gui::InputField")
         self.tipLength1Input.unit = 'mm'
-        self.tipLength1Input.setFixedWidth(80)
+        self.tipLength1Input.setMinimumWidth(100)
 
         self.tipLength2Label = QtGui.QLabel(translate('Rocket', "Length 2"), self)
 
         self.tipLength2Input = ui.createWidget("Gui::InputField")
         self.tipLength2Input.unit = 'mm'
-        self.tipLength2Input.setFixedWidth(80)
+        self.tipLength2Input.setMinimumWidth(100)
 
         self.heightLabel = QtGui.QLabel(translate('Rocket', "Height"), self)
 
         self.heightInput = ui.createWidget("Gui::InputField")
         self.heightInput.unit = 'mm'
-        self.heightInput.setFixedWidth(80)
+        self.heightInput.setMinimumWidth(100)
 
         # Sweep can be forward (-sweep) or backward (+sweep)
         self.sweepLengthLabel = QtGui.QLabel(translate('Rocket', "Sweep Length"), self)
 
         self.sweepLengthInput = ui.createWidget("Gui::InputField")
         self.sweepLengthInput.unit = 'mm'
-        self.sweepLengthInput.setFixedWidth(80)
+        self.sweepLengthInput.setMinimumWidth(100)
 
         # Sweep angle is tied to sweep length. It can be forward (> -90) or backward (< 90)
         self.sweepAngleLabel = QtGui.QLabel(translate('Rocket', "Sweep Angle"), self)
 
         self.sweepAngleInput = ui.createWidget("Gui::InputField")
         self.sweepAngleInput.unit = 'deg'
-        self.sweepAngleInput.setFixedWidth(80)
+        self.sweepAngleInput.setMinimumWidth(100)
 
         # Fin set group
         row = 0
@@ -311,25 +311,25 @@ class _FinDialog(QDialog):
 
         self.ttwOffsetInput = ui.createWidget("Gui::InputField")
         self.ttwOffsetInput.unit = 'mm'
-        self.ttwOffsetInput.setFixedWidth(80)
+        self.ttwOffsetInput.setMinimumWidth(100)
 
         self.ttwLengthLabel = QtGui.QLabel(translate('Rocket', "Length"), self)
 
         self.ttwLengthInput = ui.createWidget("Gui::InputField")
         self.ttwLengthInput.unit = 'mm'
-        self.ttwLengthInput.setFixedWidth(80)
+        self.ttwLengthInput.setMinimumWidth(100)
 
         self.ttwHeightLabel = QtGui.QLabel(translate('Rocket', "Height"), self)
 
         self.ttwHeightInput = ui.createWidget("Gui::InputField")
         self.ttwHeightInput.unit = 'mm'
-        self.ttwHeightInput.setFixedWidth(80)
+        self.ttwHeightInput.setMinimumWidth(100)
 
         self.ttwThicknessLabel = QtGui.QLabel(translate('Rocket', "Thickness"), self)
 
         self.ttwThicknessInput = ui.createWidget("Gui::InputField")
         self.ttwThicknessInput.unit = 'mm'
-        self.ttwThicknessInput.setFixedWidth(80)
+        self.ttwThicknessInput.setMinimumWidth(100)
 
         row = 0
         grid = QGridLayout()
@@ -801,7 +801,7 @@ class TaskPanelFin(QObject):
     def onHeight(self, value):
         try:
             self._obj.Height = FreeCAD.Units.Quantity(value).Value
-            self._sweepAngleFromLength(self._finForm.sweepLengthInput.property("quantity").Value)
+            self._sweepAngleFromLength(self._obj.SweepLength)
             self.redraw()
         except ValueError:
             pass
@@ -813,20 +813,20 @@ class TaskPanelFin(QObject):
             _err("Sweep angle must be greater than -90 and less than +90")
             return
         theta = math.radians(-1.0 * (theta + 90.0))
-        length = self._finForm.heightInput.property("quantity").Value / math.tan(theta)
-        self._finForm.sweepLengthInput.setText("%f" % length)
+        length = _toFloat(self._obj.Height) / math.tan(theta)
         self._obj.SweepLength = length
+        self._finForm.sweepLengthInput.setText(self._obj.SweepLength.UserString)
 
     def _sweepAngleFromLength(self, value):
         length = _toFloat(value)
-        theta = 90.0 - math.degrees(math.atan2(self._finForm.heightInput.property("quantity").Value, length))
-        self._finForm.sweepAngleInput.setText("%f" % theta)
+        theta = 90.0 - math.degrees(math.atan2(_toFloat(self._obj.Height), length))
         self._obj.SweepAngle = theta
+        self._finForm.sweepAngleInput.setText(self._obj.SweepAngle.UserString)
         
     def onSweepLength(self, value):
         try:
             self._obj.SweepLength = FreeCAD.Units.Quantity(value).Value
-            self._sweepAngleFromLength(value)
+            self._sweepAngleFromLength(self._obj.SweepLength)
             self.redraw()
         except ValueError:
             pass
@@ -835,7 +835,7 @@ class TaskPanelFin(QObject):
     def onSweepAngle(self, value):
         try:
             self._obj.SweepAngle = FreeCAD.Units.Quantity(value).Value
-            self._sweepLengthFromAngle(value)
+            self._sweepLengthFromAngle(self._obj.SweepAngle)
             self.redraw()
         except ValueError:
             pass

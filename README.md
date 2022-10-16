@@ -42,7 +42,11 @@ For any feedback, bugs, features, and discussion please refer to the Rocketry wo
 
 David Carter AKA [@davesrocketshop](https://github.com/davesrocketshop)
 
-Component database taken from the Open Rocket project (https://github.com/openrocket/openrocket)
+Component database originally taken from the Open Rocket project (https://github.com/openrocket/openrocket)
+
+Now using the improved and curated parts database by Dave Cook instead (https://github.com/dbcook/openrocket-database)
+
+Portions of the pyatmos module by Chunxiao Li are included with this software (https://github.com/lcx366/ATMOS)
 
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/davesrocketshop/Rocket.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/davesrocketshop/Rocket/alerts/)  [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/davesrocketshop/Rocket.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/davesrocketshop/Rocket/context:python)
 

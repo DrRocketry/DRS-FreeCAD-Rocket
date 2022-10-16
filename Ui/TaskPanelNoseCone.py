@@ -36,6 +36,7 @@ from DraftTools import translate
 from Ui.TaskPanelDatabase import TaskPanelDatabase
 from App.Constants import TYPE_CONE, TYPE_BLUNTED_CONE, TYPE_SPHERICAL, TYPE_ELLIPTICAL, TYPE_HAACK, TYPE_OGIVE, TYPE_BLUNTED_OGIVE, TYPE_SECANT_OGIVE, TYPE_VON_KARMAN, TYPE_PARABOLA, TYPE_PARABOLIC, TYPE_POWER
 from App.Constants import STYLE_CAPPED, STYLE_HOLLOW, STYLE_SOLID
+from App.Constants import STYLE_CAP_SOLID, STYLE_CAP_BAR, STYLE_CAP_CROSS
 from App.Constants import COMPONENT_TYPE_NOSECONE
 
 from App.Utilities import _toFloat, _valueWithUnits
@@ -97,13 +98,13 @@ class _NoseConeDialog(QDialog):
 
         self.lengthInput = ui.createWidget("Gui::InputField")
         self.lengthInput.unit = 'mm'
-        self.lengthInput.setFixedWidth(80)
+        self.lengthInput.setMinimumWidth(100)
 
         self.diameterLabel = QtGui.QLabel(translate('Rocket', "Diameter"), self)
 
         self.diameterInput = ui.createWidget("Gui::InputField")
         self.diameterInput.unit = 'mm'
-        self.diameterInput.setFixedWidth(80)
+        self.diameterInput.setMinimumWidth(100)
 
         self.autoDiameterCheckbox = QtGui.QCheckBox(translate('Rocket', "auto"), self)
         self.autoDiameterCheckbox.setCheckState(QtCore.Qt.Unchecked)
@@ -112,7 +113,7 @@ class _NoseConeDialog(QDialog):
 
         self.thicknessInput = ui.createWidget("Gui::InputField")
         self.thicknessInput.unit = 'mm'
-        self.thicknessInput.setFixedWidth(80)
+        self.thicknessInput.setMinimumWidth(100)
         self.thicknessInput.setEnabled(False)
 
         self.coefficientLabel = QtGui.QLabel(translate('Rocket', "Shape Parameter"), self)
@@ -123,7 +124,7 @@ class _NoseConeDialog(QDialog):
         self.coefficientValidator.setBottom(0.0)
 
         self.coefficientInput = QtGui.QLineEdit(self)
-        self.coefficientInput.setFixedWidth(80)
+        self.coefficientInput.setMinimumWidth(100)
         self.coefficientInput.setValidator(self.coefficientValidator)
         self.coefficientInput.setEnabled(False)
 
@@ -131,13 +132,43 @@ class _NoseConeDialog(QDialog):
 
         self.bluntedInput = ui.createWidget("Gui::InputField")
         self.bluntedInput.unit = 'mm'
-        self.bluntedInput.setFixedWidth(80)
+        self.bluntedInput.setMinimumWidth(100)
 
         self.ogiveDiameterLabel = QtGui.QLabel(translate('Rocket', "Ogive Diameter"), self)
 
         self.ogiveDiameterInput = ui.createWidget("Gui::InputField")
         self.ogiveDiameterInput.unit = 'mm'
-        self.ogiveDiameterInput.setFixedWidth(80)
+        self.ogiveDiameterInput.setMinimumWidth(100)
+
+        # Nose cap styles
+        self.noseCapGroup = QtGui.QGroupBox(translate('Rocket', "Nose Cap"), self)
+
+        self.noseCapStyleLabel = QtGui.QLabel(translate('Rocket', "Cap style"), self)
+
+        self.noseCapStyles = (STYLE_CAP_SOLID,
+                                STYLE_CAP_BAR,
+                                STYLE_CAP_CROSS)
+        self.noseCapStylesCombo = QtGui.QComboBox(self)
+        self.noseCapStylesCombo.addItems(self.noseCapStyles)
+
+        self.noseCapBarWidthLabel = QtGui.QLabel(translate('Rocket', "Bar Width"), self)
+
+        self.noseCapBarWidthInput = ui.createWidget("Gui::InputField")
+        self.noseCapBarWidthInput.unit = 'mm'
+        self.noseCapBarWidthInput.setMinimumWidth(100)
+
+        # Nose cap group
+        row = 0
+        grid = QGridLayout()
+
+        grid.addWidget(self.noseCapStyleLabel, row, 0)
+        grid.addWidget(self.noseCapStylesCombo, row, 1)
+        row += 1
+
+        grid.addWidget(self.noseCapBarWidthLabel, row, 0)
+        grid.addWidget(self.noseCapBarWidthInput, row, 1)
+
+        self.noseCapGroup.setLayout(grid)
 
         layout = QGridLayout()
         row = 0
@@ -148,6 +179,9 @@ class _NoseConeDialog(QDialog):
 
         layout.addWidget(self.noseStyleLabel, row, 0)
         layout.addWidget(self.noseStylesCombo, row, 1)
+        row += 1
+
+        layout.addWidget(self.noseCapGroup, row, 0, 1, 2)
         row += 1
 
         layout.addWidget(self.lengthLabel, row, 0)
@@ -191,7 +225,7 @@ class _NoseConeDialog(QDialog):
 
         self.shoulderDiameterInput = ui.createWidget("Gui::InputField")
         self.shoulderDiameterInput.unit = 'mm'
-        self.shoulderDiameterInput.setFixedWidth(80)
+        self.shoulderDiameterInput.setMinimumWidth(100)
         self.shoulderDiameterInput.setEnabled(False)
 
         self.shoulderAutoDiameterCheckbox = QtGui.QCheckBox(translate('Rocket', "auto"), self)
@@ -201,14 +235,14 @@ class _NoseConeDialog(QDialog):
 
         self.shoulderLengthInput = ui.createWidget("Gui::InputField")
         self.shoulderLengthInput.unit = 'mm'
-        self.shoulderLengthInput.setFixedWidth(80)
+        self.shoulderLengthInput.setMinimumWidth(100)
         self.shoulderLengthInput.setEnabled(False)
 
         self.shoulderThicknessLabel = QtGui.QLabel(translate('Rocket', "Thickness"), self)
 
         self.shoulderThicknessInput = ui.createWidget("Gui::InputField")
         self.shoulderThicknessInput.unit = 'mm'
-        self.shoulderThicknessInput.setFixedWidth(80)
+        self.shoulderThicknessInput.setMinimumWidth(100)
         self.shoulderThicknessInput.setEnabled(False)
 
         layout = QGridLayout()
@@ -249,6 +283,8 @@ class TaskPanelNoseCone:
         
         self._noseForm.noseConeTypesCombo.currentTextChanged.connect(self.onNoseType)
         self._noseForm.noseStylesCombo.currentTextChanged.connect(self.onNoseStyle)
+        self._noseForm.noseCapStylesCombo.currentTextChanged.connect(self.onNoseCapStyle)
+        self._noseForm.noseCapBarWidthInput.textEdited.connect(self.onBarWidthChanged)
 
         self._noseForm.lengthInput.textEdited.connect(self.onLength)
         self._noseForm.diameterInput.textEdited.connect(self.onDiameter)
@@ -276,6 +312,8 @@ class TaskPanelNoseCone:
         "Transfer from the dialog to the object" 
         self._obj.NoseType = str(self._noseForm.noseConeTypesCombo.currentText())
         self._obj.NoseStyle = str(self._noseForm.noseStylesCombo.currentText())
+        self._obj.CapStyle = str(self._noseForm.noseCapStylesCombo.currentText())
+        self._obj.CapBarWidth = self._noseForm.noseCapBarWidthInput.text()
         self._obj.Length = self._noseForm.lengthInput.text()
         self._obj.Diameter = self._noseForm.diameterInput.text()
         self._obj.AutoDiameter = self._noseForm.autoDiameterCheckbox.isChecked()
@@ -293,6 +331,8 @@ class TaskPanelNoseCone:
         "Transfer from the object to the dialog"
         self._noseForm.noseConeTypesCombo.setCurrentText(self._obj.NoseType)
         self._noseForm.noseStylesCombo.setCurrentText(self._obj.NoseStyle)
+        self._noseForm.noseCapStylesCombo.setCurrentText(self._obj.CapStyle)
+        self._noseForm.noseCapBarWidthInput.setText(self._obj.CapBarWidth.UserString)
         self._noseForm.lengthInput.setText(self._obj.Length.UserString)
         self._noseForm.diameterInput.setText(self._obj.Diameter.UserString)
         self._noseForm.autoDiameterCheckbox.setChecked(self._obj.AutoDiameter)
@@ -383,6 +423,12 @@ class TaskPanelNoseCone:
         else:
             self._noseForm.thicknessInput.setEnabled(False)
             self._noseForm.shoulderThicknessInput.setEnabled(False)
+
+        if value == STYLE_CAPPED:
+            self._noseForm.noseCapGroup.setEnabled(True)
+            self._setCapStyleState()
+        else:
+            self._noseForm.noseCapGroup.setEnabled(False)
         
     def onNoseStyle(self, value):
         self._obj.NoseStyle = value
@@ -390,6 +436,26 @@ class TaskPanelNoseCone:
 
         self._obj.Proxy.execute(self._obj)
         self.setEdited()
+
+    def _setCapStyleState(self):
+        value = self._obj.CapStyle
+        if value == STYLE_CAP_SOLID:
+            self._noseForm.noseCapBarWidthInput.setEnabled(False)
+        else:
+            self._noseForm.noseCapBarWidthInput.setEnabled(True)
+        
+    def onNoseCapStyle(self, value):
+        self._obj.CapStyle = value
+        self._setCapStyleState()
+
+        self._obj.Proxy.execute(self._obj)
+        
+    def onBarWidthChanged(self, value):
+        try:
+            self._obj.CapBarWidth = FreeCAD.Units.Quantity(value).Value
+            self._obj.Proxy.execute(self._obj)
+        except ValueError:
+            pass
         
     def onLength(self, value):
         try:

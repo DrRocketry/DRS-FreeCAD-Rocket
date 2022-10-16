@@ -56,7 +56,7 @@ class _BodyTubeDialog(QDialog):
 
         self.odInput = ui.createWidget("Gui::InputField")
         self.odInput.unit = 'mm'
-        self.odInput.setFixedWidth(80)
+        self.odInput.setMinimumWidth(100)
 
         self.autoDiameterCheckbox = QtGui.QCheckBox(translate('Rocket', "auto"), self)
         self.autoDiameterCheckbox.setCheckState(QtCore.Qt.Unchecked)
@@ -65,19 +65,19 @@ class _BodyTubeDialog(QDialog):
 
         self.idInput = ui.createWidget("Gui::InputField")
         self.idInput.unit = 'mm'
-        self.idInput.setFixedWidth(80)
+        self.idInput.setMinimumWidth(100)
 
         self.thicknessLabel = QtGui.QLabel(translate('Rocket', "Wall Thickness"), self)
 
         self.thicknessInput = ui.createWidget("Gui::InputField")
         self.thicknessInput.unit = 'mm'
-        self.thicknessInput.setFixedWidth(80)
+        self.thicknessInput.setMinimumWidth(100)
 
         self.lengthLabel = QtGui.QLabel(translate('Rocket', "Length"), self)
 
         self.lengthInput = ui.createWidget("Gui::InputField")
         self.lengthInput.unit = 'mm'
-        self.lengthInput.setFixedWidth(80)
+        self.lengthInput.setMinimumWidth(100)
 
         self.motorGroup = QtGui.QGroupBox(translate('Rocket', "Motor Mount"), self)
         self.motorGroup.setCheckable(True)
@@ -86,7 +86,7 @@ class _BodyTubeDialog(QDialog):
 
         self.overhangInput = ui.createWidget("Gui::InputField")
         self.overhangInput.unit = 'mm'
-        self.overhangInput.setFixedWidth(80)
+        self.overhangInput.setMinimumWidth(100)
 
         # Motor group
         row = 0
@@ -299,7 +299,6 @@ class TaskPanelBodyTube:
 
     def clicked(self,button):
         if button == QtGui.QDialogButtonBox.Apply:
-            #print "Apply"
             self.transferTo()
             self._obj.Proxy.execute(self._obj) 
         

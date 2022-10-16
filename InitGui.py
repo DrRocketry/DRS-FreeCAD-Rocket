@@ -37,9 +37,11 @@ class RocketWorkbench ( Workbench ):
         from PySide.QtCore import QT_TRANSLATE_NOOP
         
         self.appendToolbar(QT_TRANSLATE_NOOP('Rocket', 'Rocket'),
-                        ['Rocket_Rocket', 'Rocket_Stage', 'Rocket_ParallelStage', 'Rocket_NoseCone', 'Rocket_Transition', 'Rocket_Pod', 'Rocket_BodyTubes', 'Rocket_CenteringRing', 'Rocket_Bulkhead', 'Rocket_Fin', 'Rocket_LaunchGuides', 
+                        ['Rocket_Rocket', 'Rocket_Stage', 'Rocket_ParallelStage', 'Rocket_NoseCone', 'Rocket_Transition', 'Rocket_Pod', 'Rocket_BodyTubes', 'Rocket_CenteringRing', 'Rocket_Bulkhead', 'Rocket_Fin', 'Rocket_FinCan', 'Rocket_LaunchGuides', 
                         'Separator', 'Rocket_MoveUp', 'Rocket_MoveDown', 'Rocket_Edit', 'Rocket_Delete',
-                        'Separator', 'Rocket_Calculators', 'Separator', 'Rocket_NewSketch', 'Sketcher_EditSketch'])
+                        'Separator', 'Rocket_Calculators', 'Separator', 'Rocket_NewSketch', 'Sketcher_EditSketch',
+                        #'Separator', 'Rocket_ParachuteGore',
+                        'Separator', 'Rocket_FinFlutter', "Rocket_MaterialEditor"])
 
         self.appendMenu(QT_TRANSLATE_NOOP('Rocket', 'Rocket'), 
                         ['Rocket_Rocket', 'Rocket_Stage', 'Rocket_ParallelStage', 'Rocket_NoseCone', 'Rocket_Transition', 'Rocket_Pod'])
@@ -47,7 +49,12 @@ class RocketWorkbench ( Workbench ):
                          QT_TRANSLATE_NOOP("Rocket", "Body Tubes")],
                         ['Rocket_BodyTube', 'Rocket_Coupler', 'Rocket_InnerTube'])
         self.appendMenu(QT_TRANSLATE_NOOP('Rocket', 'Rocket'), 
-                        ['Rocket_CenteringRing', 'Rocket_Bulkhead', 'Rocket_Fin'])
+                        ['Rocket_NoseCone', 'Rocket_Transition', 'Rocket_BodyTube', 'Rocket_CenteringRing', 'Rocket_Bulkhead', 'Rocket_Fin', 'Rocket_FinCan', 'Rocket_LaunchGuides', 
+                        #'Rocket_Parachute',
+                        'Separator', 'Rocket_Calculators', 'Separator', 'Rocket_NewSketch', 'Sketcher_EditSketch',
+                        #'Separator', 'Rocket_ParachuteGore',
+                        'Separator', 'Rocket_FinFlutter', "Rocket_MaterialEditor"])
+
         self.appendMenu([QT_TRANSLATE_NOOP('Rocket', 'Rocket'), 
                          QT_TRANSLATE_NOOP("Rocket", "Launch Guides")],
                         ['Rocket_LaunchLug', 'Rocket_RailButton', 'Rocket_RailGuide'])
@@ -56,6 +63,12 @@ class RocketWorkbench ( Workbench ):
         self.appendMenu([QT_TRANSLATE_NOOP("Rocket", "Rocket"),
                          QT_TRANSLATE_NOOP("Rocket", "Calculators")],
                         ['Rocket_CalcBlackPowder', 'Rocket_CalcParachute', 'Rocket_CalcThrustToWeight', 'Rocket_CalcVentHoles'])
+        # self.appendMenu([QT_TRANSLATE_NOOP("Rocket", "Rocket"),
+        #                  QT_TRANSLATE_NOOP("Rocket", "Templates")],
+        #                 ['Rocket_ParachuteGore'])
+        self.appendMenu([QT_TRANSLATE_NOOP("Rocket", "Rocket"),
+                         QT_TRANSLATE_NOOP("Rocket", "Analysis")],
+                        ['Rocket_FinFlutter', "Rocket_MaterialEditor"])
 
     def GetClassName(self):
         return "Gui::PythonWorkbench"

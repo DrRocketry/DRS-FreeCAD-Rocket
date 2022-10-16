@@ -38,7 +38,8 @@ from Ui.CmdPod import CmdPod
 from Ui.CmdBulkhead import CmdBulkhead
 from Ui.CmdLaunchGuides import CmdLaunchLug, CmdRailButton, CmdRailGuide, CmdStandOff
 from Ui.CmdFin import CmdFin
-from Ui.CmdLaunchGuides import CmdLaunchLug, CmdRailButton, CmdRailGuide, CmdStandOff
+from Ui.CmdFinCan import CmdFinCan
+from Ui.CmdParachute import CmdParachute
 from Ui.CmdEditTree import CmdMoveUp, CmdMoveDown, CmdEdit, CmdDelete
 
 # Calculators
@@ -49,6 +50,13 @@ from Ui.CmdCalcVentHoles import CmdCalcVentHoles
 
 # Rocket specific sketcher
 from Ui.CmdSketcher import CmdNewSketch
+
+# Template generators
+from Ui.CmdParachuteGore import CmdParachuteGore
+
+# Analysis
+from Ui.CmdFlutterAnalysis import CmdFinFlutter
+from Ui.CmdMaterialEditor import CmdMaterialEditor
 
 FreeCADGui.addCommand('Rocket_Rocket', CmdRocket())
 FreeCADGui.addCommand('Rocket_ToggleRocket', CmdToggleRocket())
@@ -62,6 +70,7 @@ FreeCADGui.addCommand('Rocket_Transition', CmdTransition())
 FreeCADGui.addCommand('Rocket_CenteringRing', CmdCenteringRing())
 FreeCADGui.addCommand('Rocket_Bulkhead', CmdBulkhead())
 FreeCADGui.addCommand('Rocket_Fin', CmdFin())
+FreeCADGui.addCommand('Rocket_FinCan', CmdFinCan())
 
 FreeCADGui.addCommand('Rocket_BodyTube', CmdBodyTube())
 FreeCADGui.addCommand('Rocket_Coupler', CmdCoupler())
@@ -74,6 +83,8 @@ FreeCADGui.addCommand('Rocket_RailButton', CmdRailButton())
 FreeCADGui.addCommand('Rocket_RailGuide', CmdRailGuide())
 FreeCADGui.addCommand('Rocket_Standoff', CmdStandOff())
 
+FreeCADGui.addCommand('Rocket_Parachute', CmdParachute())
+
 FreeCADGui.addCommand('Rocket_CalcBlackPowder', CmdCalcBlackPowder())
 FreeCADGui.addCommand('Rocket_CalcParachute', CmdCalcParachute())
 FreeCADGui.addCommand('Rocket_CalcThrustToWeight', CmdCalcThrustToWeight())
@@ -85,6 +96,11 @@ FreeCADGui.addCommand('Rocket_Edit', CmdEdit())
 FreeCADGui.addCommand('Rocket_Delete', CmdDelete())
 
 FreeCADGui.addCommand('Rocket_NewSketch', CmdNewSketch())
+
+FreeCADGui.addCommand('Rocket_ParachuteGore', CmdParachuteGore())
+
+FreeCADGui.addCommand('Rocket_FinFlutter', CmdFinFlutter())
+FreeCADGui.addCommand('Rocket_MaterialEditor', CmdMaterialEditor())
 
 class _CalculatorGroupCommand:
 

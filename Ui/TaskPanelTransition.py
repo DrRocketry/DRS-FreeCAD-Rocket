@@ -36,6 +36,7 @@ from DraftTools import translate
 from Ui.TaskPanelDatabase import TaskPanelDatabase
 from App.Constants import TYPE_CONE, TYPE_ELLIPTICAL, TYPE_HAACK, TYPE_OGIVE, TYPE_VON_KARMAN, TYPE_PARABOLA, TYPE_PARABOLIC, TYPE_POWER
 from App.Constants import STYLE_CAPPED, STYLE_HOLLOW, STYLE_SOLID, STYLE_SOLID_CORE
+from App.Constants import STYLE_CAP_SOLID, STYLE_CAP_BAR, STYLE_CAP_CROSS
 from App.Constants import COMPONENT_TYPE_TRANSITION
 
 from App.Utilities import _toFloat, _valueWithUnits
@@ -89,7 +90,7 @@ class _TransitionDialog(QDialog):
         self.coefficientValidator.setBottom(0.0)
 
         self.coefficientInput = QtGui.QLineEdit(self)
-        self.coefficientInput.setFixedWidth(80)
+        self.coefficientInput.setMinimumWidth(100)
         self.coefficientInput.setValidator(self.coefficientValidator)
         self.coefficientInput.setEnabled(False)
 
@@ -108,13 +109,13 @@ class _TransitionDialog(QDialog):
 
         self.lengthInput = ui.createWidget("Gui::InputField")
         self.lengthInput.unit = 'mm'
-        self.lengthInput.setFixedWidth(80)
+        self.lengthInput.setMinimumWidth(100)
 
         self.foreDiameterLabel = QtGui.QLabel(translate('Rocket', "Forward Diameter"), self)
 
         self.foreDiameterInput = ui.createWidget("Gui::InputField")
         self.foreDiameterInput.unit = 'mm'
-        self.foreDiameterInput.setFixedWidth(80)
+        self.foreDiameterInput.setMinimumWidth(100)
 
         self.foreAutoDiameterCheckbox = QtGui.QCheckBox(translate('Rocket', "auto"), self)
         self.foreAutoDiameterCheckbox.setCheckState(QtCore.Qt.Unchecked)
@@ -123,7 +124,7 @@ class _TransitionDialog(QDialog):
 
         self.aftDiameterInput = ui.createWidget("Gui::InputField")
         self.aftDiameterInput.unit = 'mm'
-        self.aftDiameterInput.setFixedWidth(80)
+        self.aftDiameterInput.setMinimumWidth(100)
 
         self.aftAutoDiameterCheckbox = QtGui.QCheckBox(translate('Rocket', "auto"), self)
         self.aftAutoDiameterCheckbox.setCheckState(QtCore.Qt.Unchecked)
@@ -132,13 +133,73 @@ class _TransitionDialog(QDialog):
 
         self.coreDiameterInput = ui.createWidget("Gui::InputField")
         self.coreDiameterInput.unit = 'mm'
-        self.coreDiameterInput.setFixedWidth(80)
+        self.coreDiameterInput.setMinimumWidth(100)
 
         self.thicknessLabel = QtGui.QLabel(translate('Rocket', "Thickness"), self)
 
         self.thicknessInput = ui.createWidget("Gui::InputField")
         self.thicknessInput.unit = 'mm'
-        self.thicknessInput.setFixedWidth(80)
+        self.thicknessInput.setMinimumWidth(100)
+
+        # Forward cap styles
+        self.foreCapGroup = QtGui.QGroupBox(translate('Rocket', "Foreward Cap"), self)
+
+        self.foreCapStyleLabel = QtGui.QLabel(translate('Rocket', "Cap style"), self)
+
+        self.foreCapStyles = (STYLE_CAP_SOLID,
+                                STYLE_CAP_BAR,
+                                STYLE_CAP_CROSS)
+        self.foreCapStylesCombo = QtGui.QComboBox(self)
+        self.foreCapStylesCombo.addItems(self.foreCapStyles)
+
+        self.foreCapBarWidthLabel = QtGui.QLabel(translate('Rocket', "Bar Width"), self)
+
+        self.foreCapBarWidthInput = ui.createWidget("Gui::InputField")
+        self.foreCapBarWidthInput.unit = 'mm'
+        self.foreCapBarWidthInput.setMinimumWidth(100)
+
+        # Aft cap styles
+        self.aftCapGroup = QtGui.QGroupBox(translate('Rocket', "Aft Cap"), self)
+
+        self.aftCapStyleLabel = QtGui.QLabel(translate('Rocket', "Cap style"), self)
+
+        self.aftCapStyles = (STYLE_CAP_SOLID,
+                                STYLE_CAP_BAR,
+                                STYLE_CAP_CROSS)
+        self.aftCapStylesCombo = QtGui.QComboBox(self)
+        self.aftCapStylesCombo.addItems(self.aftCapStyles)
+
+        self.aftCapBarWidthLabel = QtGui.QLabel(translate('Rocket', "Bar Width"), self)
+
+        self.aftCapBarWidthInput = ui.createWidget("Gui::InputField")
+        self.aftCapBarWidthInput.unit = 'mm'
+        self.aftCapBarWidthInput.setMinimumWidth(100)
+
+        # Foreward cap group
+        row = 0
+        grid = QGridLayout()
+
+        grid.addWidget(self.foreCapStyleLabel, row, 0)
+        grid.addWidget(self.foreCapStylesCombo, row, 1)
+        row += 1
+
+        grid.addWidget(self.foreCapBarWidthLabel, row, 0)
+        grid.addWidget(self.foreCapBarWidthInput, row, 1)
+
+        self.foreCapGroup.setLayout(grid)
+
+        # Aft cap group
+        row = 0
+        grid = QGridLayout()
+
+        grid.addWidget(self.aftCapStyleLabel, row, 0)
+        grid.addWidget(self.aftCapStylesCombo, row, 1)
+        row += 1
+
+        grid.addWidget(self.aftCapBarWidthLabel, row, 0)
+        grid.addWidget(self.aftCapBarWidthInput, row, 1)
+
+        self.aftCapGroup.setLayout(grid)
 
         row = 0
         layout = QGridLayout()
@@ -154,6 +215,12 @@ class _TransitionDialog(QDialog):
 
         layout.addWidget(self.transitionStyleLabel, row, 0)
         layout.addWidget(self.transitionStylesCombo, row, 1)
+        row += 1
+
+        layout.addWidget(self.foreCapGroup, row, 0, 1, 2)
+        row += 1
+
+        layout.addWidget(self.aftCapGroup, row, 0, 1, 2)
         row += 1
 
         layout.addWidget(self.lengthLabel, row, 0)
@@ -192,19 +259,19 @@ class _TransitionDialog(QDialog):
 
         self.foreShoulderDiameterInput = ui.createWidget("Gui::InputField")
         self.foreShoulderDiameterInput.unit = 'mm'
-        self.foreShoulderDiameterInput.setFixedWidth(80)
+        self.foreShoulderDiameterInput.setMinimumWidth(100)
 
         self.foreShoulderLengthLabel = QtGui.QLabel(translate('Rocket', "Length"), self)
 
         self.foreShoulderLengthInput = ui.createWidget("Gui::InputField")
         self.foreShoulderLengthInput.unit = 'mm'
-        self.foreShoulderLengthInput.setFixedWidth(80)
+        self.foreShoulderLengthInput.setMinimumWidth(100)
 
         self.foreShoulderThicknessLabel = QtGui.QLabel(translate('Rocket', "Thickness"), self)
 
         self.foreShoulderThicknessInput = ui.createWidget("Gui::InputField")
         self.foreShoulderThicknessInput.unit = 'mm'
-        self.foreShoulderThicknessInput.setFixedWidth(80)
+        self.foreShoulderThicknessInput.setMinimumWidth(100)
 
         self.aftGroup = QtGui.QGroupBox(translate('Rocket', "Aft Shoulder"), self)
         self.aftGroup.setCheckable(True)
@@ -213,19 +280,19 @@ class _TransitionDialog(QDialog):
 
         self.aftShoulderDiameterInput = ui.createWidget("Gui::InputField")
         self.aftShoulderDiameterInput.unit = 'mm'
-        self.aftShoulderDiameterInput.setFixedWidth(80)
+        self.aftShoulderDiameterInput.setMinimumWidth(100)
 
         self.aftShoulderLengthLabel = QtGui.QLabel(translate('Rocket', "Length"), self)
 
         self.aftShoulderLengthInput = ui.createWidget("Gui::InputField")
         self.aftShoulderLengthInput.unit = 'mm'
-        self.aftShoulderLengthInput.setFixedWidth(80)
+        self.aftShoulderLengthInput.setMinimumWidth(100)
 
         self.aftShoulderThicknessLabel = QtGui.QLabel(translate('Rocket', "Thickness"), self)
 
         self.aftShoulderThicknessInput = ui.createWidget("Gui::InputField")
         self.aftShoulderThicknessInput.unit = 'mm'
-        self.aftShoulderThicknessInput.setFixedWidth(80)
+        self.aftShoulderThicknessInput.setMinimumWidth(100)
 
         row = 0
         layout = QGridLayout()
@@ -279,6 +346,10 @@ class TaskPanelTransition:
         
         self._tranForm.transitionTypesCombo.currentTextChanged.connect(self.onTransitionType)
         self._tranForm.transitionStylesCombo.currentTextChanged.connect(self.onTransitionStyle)
+        self._tranForm.foreCapStylesCombo.currentTextChanged.connect(self.onForeCapStyle)
+        self._tranForm.foreCapBarWidthInput.textEdited.connect(self.onForeBarWidth)
+        self._tranForm.aftCapStylesCombo.currentTextChanged.connect(self.onAftCapStyle)
+        self._tranForm.aftCapBarWidthInput.textEdited.connect(self.onAftBarWidth)
         self._tranForm.lengthInput.textEdited.connect(self.onLength)
         self._tranForm.foreDiameterInput.textEdited.connect(self.onForeDiameter)
         self._tranForm.foreAutoDiameterCheckbox.stateChanged.connect(self.onForeAutoDiameter)
@@ -309,6 +380,10 @@ class TaskPanelTransition:
         "Transfer from the dialog to the object" 
         self._obj.TransitionType = str(self._tranForm.transitionTypesCombo.currentText())
         self._obj.TransitionStyle = str(self._tranForm.transitionStylesCombo.currentText())
+        self._obj.ForeCapStyle = str(self._tranForm.foreCapStylesCombo.currentText())
+        self._obj.ForeCapBarWidth = self._tranForm.foreCapBarWidthInput.text()
+        self._obj.AftCapStyle = str(self._tranForm.aftCapStylesCombo.currentText())
+        self._obj.AftCapBarWidth = self._tranForm.aftCapBarWidthInput.text()
         self._obj.Length = self._tranForm.lengthInput.text()
         self._obj.ForeDiameter = self._tranForm.foreDiameterInput.text()
         self._obj.ForeAutoDiameter = self._tranForm.foreAutoDiameterCheckbox.isChecked()
@@ -331,6 +406,10 @@ class TaskPanelTransition:
         "Transfer from the object to the dialog"
         self._tranForm.transitionTypesCombo.setCurrentText(self._obj.TransitionType)
         self._tranForm.transitionStylesCombo.setCurrentText(self._obj.TransitionStyle)
+        self._tranForm.foreCapStylesCombo.setCurrentText(self._obj.ForeCapStyle)
+        self._tranForm.foreCapBarWidthInput.setText(self._obj.ForeCapBarWidth.UserString)
+        self._tranForm.aftCapStylesCombo.setCurrentText(self._obj.AftCapStyle)
+        self._tranForm.aftCapBarWidthInput.setText(self._obj.AftCapBarWidth.UserString)
         self._tranForm.lengthInput.setText(self._obj.Length.UserString)
         self._tranForm.foreDiameterInput.setText(self._obj.ForeDiameter.UserString)
         self._tranForm.foreAutoDiameterCheckbox.setChecked(self._obj.ForeAutoDiameter)
@@ -415,26 +494,78 @@ class TaskPanelTransition:
                 self._tranForm.aftShoulderThicknessInput.setEnabled(True)
             else:
                 self._tranForm.aftShoulderThicknessInput.setEnabled(False)
+
+            if value == STYLE_CAPPED:
+                self._tranForm.foreCapGroup.setEnabled(True)
+                self._tranForm.aftCapGroup.setEnabled(True)
+                self._setForeCapStyleState()
+                self._setAftCapStyleState()
+            else:
+                self._tranForm.foreCapGroup.setEnabled(False)
+                self._tranForm.aftCapGroup.setEnabled(False)
         elif value == STYLE_SOLID_CORE:
             self._tranForm.thicknessInput.setEnabled(False)
             self._tranForm.coreDiameterInput.setEnabled(True)
 
             self._tranForm.foreShoulderThicknessInput.setEnabled(False)
             self._tranForm.aftShoulderThicknessInput.setEnabled(False)
+            self._tranForm.foreCapGroup.setEnabled(False)
+            self._tranForm.aftCapGroup.setEnabled(False)
         else:
             self._tranForm.thicknessInput.setEnabled(False)
             self._tranForm.coreDiameterInput.setEnabled(False)
 
             self._tranForm.foreShoulderThicknessInput.setEnabled(False)
             self._tranForm.aftShoulderThicknessInput.setEnabled(False)
-
-        
+            self._tranForm.foreCapGroup.setEnabled(False)
+            self._tranForm.aftCapGroup.setEnabled(False)
+ 
+    def _setForeCapStyleState(self):
+        value = self._obj.ForeCapStyle
+        if value == STYLE_CAP_SOLID:
+            self._tranForm.foreCapBarWidthInput.setEnabled(False)
+        else:
+            self._tranForm.foreCapBarWidthInput.setEnabled(True)
+ 
+    def _setAftCapStyleState(self):
+        value = self._obj.AftCapStyle
+        if value == STYLE_CAP_SOLID:
+            self._tranForm.aftCapBarWidthInput.setEnabled(False)
+        else:
+            self._tranForm.aftCapBarWidthInput.setEnabled(True)
+       
     def onTransitionStyle(self, value):
         self._obj.TransitionStyle = value
 
         self._showTransitionStyle()
         self._obj.Proxy.execute(self._obj)
         self.setEdited()
+        
+    def onForeCapStyle(self, value):
+        self._obj.ForeCapStyle = value
+        self._setForeCapStyleState()
+
+        self._obj.Proxy.execute(self._obj)
+        
+    def onForeBarWidth(self, value):
+        try:
+            self._obj.ForeCapBarWidth = FreeCAD.Units.Quantity(value).Value
+            self._obj.Proxy.execute(self._obj)
+        except ValueError:
+            pass
+        
+    def onAftCapStyle(self, value):
+        self._obj.AftCapStyle = value
+        self._setAftCapStyleState()
+
+        self._obj.Proxy.execute(self._obj)
+        
+    def onAftBarWidth(self, value):
+        try:
+            self._obj.AftCapBarWidth = FreeCAD.Units.Quantity(value).Value
+            self._obj.Proxy.execute(self._obj)
+        except ValueError:
+            pass
         
     def onLength(self, value):
         try:
@@ -633,7 +764,6 @@ class TaskPanelTransition:
 
     def clicked(self,button):
         if button == QtGui.QDialogButtonBox.Apply:
-            #print "Apply"
             self.transferTo()
             self._obj.Proxy.execute(self._obj) 
         
